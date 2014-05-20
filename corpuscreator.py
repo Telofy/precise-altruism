@@ -1,4 +1,3 @@
-# -*- encoding: utf-8 -*-
 import argparse
 import json
 import csv
@@ -6,7 +5,7 @@ from copy import copy
 
 TEAM_SIZE = 2
 RAW_FILES = ('altruism.2014-05-13.json',
-             'charity.2014-05-13.json',
+             #'charity.2014-05-13.json',
              'generic.2014-05-13.json')
 
 def select(dictionary, keys):
@@ -33,42 +32,48 @@ def run():
         data = data[int(args.mod[0])::TEAM_SIZE]
         #print type(args.mod[0])
     # Start categorization
-    with open('categorization.csv', 'a+') as csv_file:
+    with open('categorization.csv', 'r') as csv_file:
         # Read the documents that were already categorized and are to
         # be excluded in the following categorization (also if they were skipped!)
-        catreader = csv.reader(csv_file, delimiter = ';')
-        done = set() 
+        catreader = csv.reader(csv_file, delimiter='\t')
+        done = set()
         for row in catreader:
             if len(row) > 0:
                 done.add(row[0])
-        catwriter = csv.writer(csv_file, delimiter=';')
+    with open('categorization.csv', 'a+') as csv_file:
+        catwriter = csv.writer(csv_file, delimiter='\t')
         # Do the categorization for uncategorized documents
         for hit in data:
-            hit_data = {}
+            hit_data = []
             for keys in args.key:
                 the_key, value = select(hit['_source'], keys.split('.'))
-                hit_data[the_key] = value
-            if hit_data.get('link_url') in done:
+                hit_data.append((the_key, value))  # To maintain the order
+            if hit['_source']['link_url'] in done:
                 continue
-            print('\n -------------------------------begin document-----------------------------------------\n')
-            for key in hit_data.keys():
-                print(key, ': ', hit_data.get(key))
+            print('\n------------------------------- '
+                  'begin document'
+                  ' -------------------------------\n')
+            for key, value in hit_data:
+                print(key + ':', value)
                 print('\n')
-            print('\n---------------------------------end document------------------------------------------\n')
+            print('\n------------------------------- '
+                  'end document'
+                  ' -------------------------------\n')
             # Ask for input and check if it is valid (i.e. if input \in {'y', 'n', 's'})
             valid = False
             while not valid:
-                cat_ = input("Is this article interesting for someone interested in charity? (y[as]/n[o]/s[kip] ")
+                cat_ = input('Is this article interesting for someone '
+                             'interested in charity? (y[es]/n[o]/s[kip] ')
                 if cat_ == 'y':
-                    catwriter.writerow([hit_data.get('link_url'), 1])
+                    catwriter.writerow([hit['_source']['link_url'], True])
                     valid = True
                 elif cat_ == 'n':
-                    catwriter.writerow([hit_data.get('link_url'), 0])
+                    catwriter.writerow([hit['_source']['link_url'], False])
                     valid = True
                 elif cat_ == 's':
-                    catwriter.writerow([hit_data.get('link_url'), 2])
+                    catwriter.writerow([hit['_source']['link_url'], None])
                     valid = True
-                else: print("Invalid choice, try again.\n")
+                else: print('Invalid choice, try again.\n')
 
 if __name__ == '__main__':
     run()
