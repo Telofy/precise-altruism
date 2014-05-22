@@ -63,15 +63,15 @@ def run():
             valid = False
             while not valid:
                 cat_ = input('Is this article interesting for someone '
-                             'interested in charity? (y[es]/n[o]/s[kip] ')
+                             'interested in charity? (y[es]/n[o]/s[kip])')
                 if cat_ == 'y':
-                    catwriter.writerow([hit['_source']['link_url'], True])
+                    catwriter.writerow([hit['_source']['link_url'], True, args.mod[0]])
                     valid = True
                 elif cat_ == 'n':
-                    catwriter.writerow([hit['_source']['link_url'], False])
+                    catwriter.writerow([hit['_source']['link_url'], False, args.mod[0]])
                     valid = True
                 elif cat_ == 's':
-                    catwriter.writerow([hit['_source']['link_url'], None])
+                    catwriter.writerow([hit['_source']['link_url'], None, args.mod[0]])
                     valid = True
                 else: print('Invalid choice, try again.\n')
 
