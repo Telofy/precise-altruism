@@ -4,9 +4,6 @@ import csv
 from copy import copy
 
 TEAM_SIZE = 2
-RAW_FILES = ('altruism.2014-05-13.json',
-             #'charity.2014-05-13.json',
-             'generic.2014-05-13.json')
 
 def select(dictionary, keys):
     dict_ = copy(dictionary)
@@ -15,22 +12,22 @@ def select(dictionary, keys):
     return key, dict_
 
 def run():
-    # python corpuscreator.py --mod 0 link_url content.title content.body
+    # python corpuscreator.py --modulo 0 link_url content.title content.body
     # https://docs.python.org/dev/library/argparse.html
     parser = argparse.ArgumentParser(description='Helps us create a corpus.')
-    parser.add_argument('-m', '--mod',
+    parser.add_argument('-m', '--modulo', type=int,
                         help='Modulo of choice of the team member.')
+    parser.add_argument('-f', '--file',
+                        help='Source file.')
     parser.add_argument('key', nargs='+', help='Keys like content.body')
     args = parser.parse_args()
     # args.key
-    data = []
-    for raw_file in RAW_FILES:
-        with open(raw_file) as json_file:
-            data.extend(json.load(json_file)['hits']['hits'])
-    # If mod is given, categorize only documents that are in the specified 'Restklasse'
-    if args.mod:
-        data = data[int(args.mod[0])::TEAM_SIZE]
-        #print type(args.mod[0])
+    with open(args.file) as json_file:
+        data = json.load(json_file)['hits']['hits']
+    # If modulo is given, categorize only documents that are in the specified 'Restklasse'
+    if args.modulo:
+        data = data[int(args.modulo)::TEAM_SIZE]
+        #print type(args.modulo)
     # Start categorization
     with open('categorization.csv', 'r') as csv_file:
         # Read the documents that were already categorized and are to
@@ -63,15 +60,15 @@ def run():
             valid = False
             while not valid:
                 cat_ = input('Is this article interesting for someone '
-                             'interested in charity? (y[es]/n[o]/s[kip])')
+                             'interested in charity? (y[es]/n[o]/s[kip]) ')
                 if cat_ == 'y':
-                    catwriter.writerow([hit['_source']['link_url'], True, args.mod[0]])
+                    catwriter.writerow([hit['_source']['link_url'], True, args.file, args.modulo])
                     valid = True
                 elif cat_ == 'n':
-                    catwriter.writerow([hit['_source']['link_url'], False, args.mod[0]])
+                    catwriter.writerow([hit['_source']['link_url'], False, args.file, args.modulo])
                     valid = True
                 elif cat_ == 's':
-                    catwriter.writerow([hit['_source']['link_url'], None, args.mod[0]])
+                    catwriter.writerow([hit['_source']['link_url'], None, args.file, args.modulo])
                     valid = True
                 else: print('Invalid choice, try again.\n')
 
