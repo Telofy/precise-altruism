@@ -1,6 +1,7 @@
 import argparse
-import json
 import csv
+import json
+import os.path
 from copy import copy
 
 TEAM_SIZE = 2
@@ -21,6 +22,7 @@ def run():
                         help='Source file.')
     parser.add_argument('key', nargs='+', help='Keys like content.body')
     args = parser.parse_args()
+    filename = os.path.basename(args.file)
     # args.key
     with open(args.file) as json_file:
         data = json.load(json_file)['hits']['hits']
@@ -41,11 +43,12 @@ def run():
         catwriter = csv.writer(csv_file, delimiter='\t')
         # Do the categorization for uncategorized documents
         for hit in data:
+            link_url = hit['_source']['link_url']
             hit_data = []
             for keys in args.key:
                 the_key, value = select(hit['_source'], keys.split('.'))
                 hit_data.append((the_key, value))  # To maintain the order
-            if hit['_source']['link_url'] in done:
+            if link_url in done:
                 continue
             print('\n------------------------------- '
                   'begin document'
@@ -62,13 +65,13 @@ def run():
                 cat_ = input('Is this article interesting for someone '
                              'interested in charity? (y[es]/n[o]/s[kip]) ')
                 if cat_ == 'y':
-                    catwriter.writerow([hit['_source']['link_url'], True, args.file, args.modulo])
+                    catwriter.writerow([link_url, True, filename, args.modulo])
                     valid = True
                 elif cat_ == 'n':
-                    catwriter.writerow([hit['_source']['link_url'], False, args.file, args.modulo])
+                    catwriter.writerow([link_url, False, filename, args.modulo])
                     valid = True
                 elif cat_ == 's':
-                    catwriter.writerow([hit['_source']['link_url'], None, args.file, args.modulo])
+                    catwriter.writerow([link_url, None, filename, args.modulo])
                     valid = True
                 else: print('Invalid choice, try again.\n')
 
