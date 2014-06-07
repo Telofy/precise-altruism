@@ -26,5 +26,5 @@ supervisord.pid
 /src/
 /processes.conf
 /*.pickle
-/*.json
+/data/
 .~lock.*
