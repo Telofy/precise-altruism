@@ -2,12 +2,9 @@
 *.swp
 bin/
 downloads/*
-!downloads/.keep
 caches/*
-!caches/.keep
 develop-eggs/
 eggs/*
-!eggs/.keep
 parts/
 .installed.cfg
 *.egg-info
@@ -19,12 +16,11 @@ parts/
 settings_override.py
 supervisord.pid
 /logs/*
-!/logs/.keep
 /webroot/*
-!/webroot/.keep
 /.mr.developer.cfg
 /src/
 /processes.conf
 /*.pickle
-/data/
+/data/*
 .~lock.*
+!.keep
