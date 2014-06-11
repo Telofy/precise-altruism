@@ -12,9 +12,41 @@ def select(dictionary, keys):
         dict_ = dict_.get(key, {})
     return key, dict_
 
-def run():
-    # python corpuscreator.py --modulo 0 link_url content.title content.body
-    # https://docs.python.org/dev/library/argparse.html
+def find_item(iterable, key, value):
+    for item in iterable:
+        try:
+            if key(item) == value:
+                return item
+        except KeyError:
+            pass
+    raise KeyError('No item with key(item) == {!r}'.format(value))
+
+def corpus_generation():
+    parser = argparse.ArgumentParser(description='Actually creates a corpus.')
+    parser.add_argument('datadir',
+                        help='Directory for source and target files.')
+    args = parser.parse_args()
+    with open('categorization.csv') as csv_file:
+        catreader = csv.reader(csv_file, delimiter='\t')
+        altruism = {True: [], False: []}
+        sources = {}
+        for row in catreader:
+            url, cat, src, _ = row
+            cat = bool(cat)
+            try:
+                source = sources[src]
+            except KeyError:
+                with open(os.path.join(args.datadir, row[2])) as json_file:
+                    source = json.load(json_file)['hits']['hits']
+                    sources[src] = source
+            altruism[cat].append(find_item(
+                source, lambda item: item['_source']['link_url'], url))
+    for cat, items in altruism.items():
+        filename = 'altruism.{}.json'.format(cat)
+        with open(os.path.join(args.datadir, filename), 'w') as json_file:
+            json.dump(items, json_file, indent=4)
+
+def manual_classification():
     parser = argparse.ArgumentParser(description='Helps us create a corpus.')
     parser.add_argument('-m', '--modulo', type=int,
                         help='Modulo of choice of the team member.')

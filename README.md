@@ -11,11 +11,15 @@ Just execute the following commands and hope for the best.
     python3 bootstrap.py
     bin/buildout
 
-## Running the Corpus Creator
+## Running the Manual Classification
 
 See the usage message with the `--help` option for explanations. Here an example.
 
-    bin/corpuscreator -m 0 -f data/altruism.2014-05-13.json link_url content.title content.body
+    bin/manual_classification -m 0 -f data/altruism.2014-05-13.json link_url content.title content.body
+
+## Generating the Corpora
+
+    bin/corpus_generation data/
 
 ## Running the Daemon
 
