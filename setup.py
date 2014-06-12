@@ -16,7 +16,7 @@ setup(
     install_requires=[
         'python-tumblpy==1.0.2',
         'feedparser==5.1.3',
-        #'scikit-learn==0.15.0b1',
+        'scikit-learn==0.15.0b1',
     ],
     zip_safe=False,
     entry_points={
