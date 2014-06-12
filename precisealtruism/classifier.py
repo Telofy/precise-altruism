@@ -17,10 +17,11 @@ for cat in (True, False):
                       for item in json.load(json_file))
 documents, labels = zip(*sorted(tuples, key=lambda x: random()))
 
-train_documents = [doc for i, doc in enumerate(documents) if i % 10 <= 8]
-train_labels = [label for i, label in enumerate(labels) if i % 10 <= 8]
-test_documents = [doc for i, doc in enumerate(documents) if i % 10 > 8]
-test_labels = [label for i, label in enumerate(labels) if i % 10 > 8]
+cutoff = int(len(documents) / (10/8))
+train_documents = documents[:cutoff]
+train_labels = labels[:cutoff]
+test_documents = documents[cutoff:]
+test_labels = labels[cutoff:]
 
 classifier = LogisticRegression()
 vectorizer = TfidfVectorizer()
