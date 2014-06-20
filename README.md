@@ -6,7 +6,12 @@ This engine is (will be) used to run a Tumblr or Twitter account that publishes 
 
 ## Setup
 
-Just execute the following commands and hope for the best.
+On Ubuntu, the following seems to be necessary:
+
+    sudo aptitude remove python3-numpy  # Just to be sure
+    sudo pip3 install numpy
+
+Then just execute the following commands and hope for the best.
 
     python3 bootstrap.py
     bin/buildout
