@@ -1,3 +1,6 @@
+# -*- encoding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 import argparse
 import csv
 import json
@@ -27,7 +30,7 @@ def corpus_generation():
                         help='Directory for source and target files.')
     args = parser.parse_args()
     with open('categorization.csv') as csv_file:
-        catreader = csv.reader(csv_file, delimiter='\t')
+        catreader = csv.reader(csv_file, delimiter=b'\t')
         altruism = {True: [], False: []}
         sources = {}
         for row in catreader:
@@ -66,13 +69,13 @@ def manual_classification():
     with open('categorization.csv', 'r') as csv_file:
         # Read the documents that were already categorized and are to
         # be excluded in the following categorization (also if they were skipped!)
-        catreader = csv.reader(csv_file, delimiter='\t')
+        catreader = csv.reader(csv_file, delimiter=b'\t')
         done = set()
         for row in catreader:
             if len(row) > 0:
                 done.add(row[0])
     with open('categorization.csv', 'a+') as csv_file:
-        catwriter = csv.writer(csv_file, delimiter='\t')
+        catwriter = csv.writer(csv_file, delimiter=b'\t')
         # Do the categorization for uncategorized documents
         for hit in data:
             link_url = hit['_source']['link_url']
