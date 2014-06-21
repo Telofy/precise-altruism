@@ -17,6 +17,7 @@ setup(
         'python-tumblpy==1.0.2',
         'feedparser==5.1.3',
         'scikit-learn==0.15.0b1',
+        'six==1.7.2',
     ],
     zip_safe=False,
     entry_points={

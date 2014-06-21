@@ -6,8 +6,10 @@ import csv
 import json
 import os.path
 from copy import copy
+import six
 
 TEAM_SIZE = 2
+SEPARATOR = '\t' if six.PY3 else b'\t'
 
 def select(dictionary, keys):
     dict_ = copy(dictionary)
@@ -30,7 +32,7 @@ def corpus_generation():
                         help='Directory for source and target files.')
     args = parser.parse_args()
     with open('categorization.csv') as csv_file:
-        catreader = csv.reader(csv_file, delimiter=b'\t')
+        catreader = csv.reader(csv_file, delimiter=SEPARATOR)
         altruism = {True: [], False: []}
         sources = {}
         for row in catreader:
@@ -69,13 +71,13 @@ def manual_classification():
     with open('categorization.csv', 'r') as csv_file:
         # Read the documents that were already categorized and are to
         # be excluded in the following categorization (also if they were skipped!)
-        catreader = csv.reader(csv_file, delimiter=b'\t')
+        catreader = csv.reader(csv_file, delimiter=SEPARATOR)
         done = set()
         for row in catreader:
             if len(row) > 0:
                 done.add(row[0])
     with open('categorization.csv', 'a+') as csv_file:
-        catwriter = csv.writer(csv_file, delimiter=b'\t')
+        catwriter = csv.writer(csv_file, delimiter=SEPARATOR)
         # Do the categorization for uncategorized documents
         for hit in data:
             link_url = hit['_source']['link_url']
