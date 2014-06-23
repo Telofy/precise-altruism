@@ -5,8 +5,9 @@ import argparse
 import csv
 import json
 import os.path
-from copy import copy
 import six
+from copy import copy
+from six.moves import input
 
 TEAM_SIZE = 2
 SEPARATOR = '\t' if six.PY3 else b'\t'
