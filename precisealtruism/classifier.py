@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 import json
 from random import random
+from time import time
 from sklearn import cross_validation, svm
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, SGDClassifier
@@ -36,8 +37,9 @@ classifiers = [RandomForestClassifier(), LogisticRegression(),
                SGDClassifier(), AdaBoostClassifier(),
                svm.SVC(), svm.NuSVC(), svm.LinearSVC()]
 for classifier in classifiers:
+    start = time()
     pipeline = Pipeline([
-        ('vectorizer', TfidfVectorizer()),
+        ('vectorizer', TfidfVectorizer(stop_words='english')),
         ('densifier', Densifier()),
         ('classifier', classifier)])
     # https://github.com/scikit-learn/scikit-learn/issues/1837
@@ -53,9 +55,10 @@ for classifier in classifiers:
                         (precision_std + recall_std))  # Amidoinitrite?
     print(('{}\nPrecision: {:.2} ± {:.2}\n'
                'Recall: {:.2} ± {:.2}\n'
-               'F1 score: {:.2} ± {:.2}\n').format(
+               'F1 score: {:.2} ± {:.2}').format(
         classifier, precision, precision_std,
         recall, recall_std, f1_score, f1_score_std))
+    print('Time: {:.2f} s\n'.format(time() - start))
 
 # Old stuff, for reference, then to be deleted.
 #

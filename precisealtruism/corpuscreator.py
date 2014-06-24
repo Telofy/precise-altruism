@@ -48,6 +48,7 @@ def corpus_generation():
             altruism[cat].append(find_item(
                 source, lambda item: item['_source']['link_url'], url))
     for cat, items in altruism.items():
+        print('{} items in category {}'.format(len(items), cat))
         filename = 'altruism.{}.json'.format(cat)
         with open(os.path.join(args.datadir, filename), 'w') as json_file:
             json.dump(items, json_file, indent=4)
