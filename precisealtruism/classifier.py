@@ -1,8 +1,12 @@
+# -*- encoding: utf-8 -*-
+from __future__ import (absolute_import, division,
+                        print_function, unicode_literals)
 import json
 from random import random
-from sklearn.cross_validation import ShuffleSplit
+from sklearn import cross_validation, svm
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.linear_model import LogisticRegression
+from sklearn.linear_model import LogisticRegression, SGDClassifier
+from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.pipeline import Pipeline
 
 DATADIR = 'data/'
@@ -17,34 +21,49 @@ for cat in (True, False):
                       for item in json.load(json_file))
 documents, labels = zip(*sorted(tuples, key=lambda x: random()))
 
-cutoff = int(len(documents) / (10/8))
-train_documents = documents[:cutoff]
-train_labels = labels[:cutoff]
-test_documents = documents[cutoff:]
-test_labels = labels[cutoff:]
+classifiers = [RandomForestClassifier(), LogisticRegression(),
+               SGDClassifier(), AdaBoostClassifier(),
+               svm.SVC(), svm.NuSVC(), svm.LinearSVC()]
+for classifier in classifiers:
+    # Is this okay, or am I making that evil mistake Kashif keeps warning
+    # us against? (I’m still a bit fuzzy on what these functions do…)
+    feature_matrix = TfidfVectorizer().fit_transform(documents, labels).toarray()
+    # https://github.com/scikit-learn/scikit-learn/issues/1837
+    precisions = cross_validation.cross_val_score(
+        classifier, feature_matrix, labels, cv=10, scoring='precision')
+    recalls = cross_validation.cross_val_score(
+        classifier, feature_matrix, labels, cv=10, scoring='recall')
+    precision, precision_std = precisions.mean(), precisions.std() * 2
+    recall, recall_std = recalls.mean(), recalls.std() * 2
+    f1_score = 2 * ((precision * recall) /
+                    (precision + recall))
+    f1_score_std = 2 * ((precision_std * recall_std) /
+                        (precision_std + recall_std))  # Amidoinitrite?
+    print(('{}\nPrecision: {:.2} ± {:.2}\n'
+               'Recall: {:.2} ± {:.2}\n'
+               'F1 score: {:.2} ± {:.2}\n').format(
+        classifier, precision, precision_std,
+        recall, recall_std, f1_score, f1_score_std))
 
-classifier = LogisticRegression()
-vectorizer = TfidfVectorizer()
-pipeline = Pipeline([
-    ('vectorizer', vectorizer),
-    ('classifier', classifier)])
-
-train_feature_matrix = vectorizer.fit_transform(train_documents, train_labels)
-classifier.fit(train_feature_matrix, train_labels)
-
-test_feature_matrix = vectorizer.transform(test_documents)
-labels = classifier.predict(test_feature_matrix)
-
-print(test_labels)
-print(list(labels))
-
-#classifier = LogisticRegression(...)
-#vectorizer = TfidfVectorizer(...)
-#documents = [...] of length n
-#labels [...] of length n      e.g., [0, 0, 1, 0, 1]
-#split documents and labels in train_documents, test_documents, train_labels, test_labels
-#vectorizer.fit(train_documents, train_labels)
-#feature_matrix = vectorizer.transform(test_documents)
-#classifier.fit(feature_matrix, train_labels)
-#labels = classifier.predict(test_documents)
-#labels = [0, 1, 1, 0, ...]
+# Old stuff, for reference, then to be deleted.
+#
+#cutoff = int(len(documents) / (10/8))
+#train_documents = documents[:cutoff]
+#train_labels = labels[:cutoff]
+#test_documents = documents[cutoff:]
+#test_labels = labels[cutoff:]
+#
+#classifier = LogisticRegression()
+#vectorizer = TfidfVectorizer()
+#pipeline = Pipeline([
+#    ('vectorizer', vectorizer),
+#    ('classifier', classifier)])
+#
+#train_feature_matrix = vectorizer.fit_transform(train_documents, train_labels)
+#classifier.fit(train_feature_matrix, train_labels)
+#
+#test_feature_matrix = vectorizer.transform(test_documents)
+#labels = classifier.predict(test_feature_matrix)
+#
+#print(test_labels)
+#print(list(labels))

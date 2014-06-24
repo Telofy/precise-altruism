@@ -11,6 +11,10 @@ On Ubuntu, the following seems to be necessary:
     sudo aptitude remove python3-numpy  # Just to be sure
     sudo pip3 install numpy
 
+You may also have to install some packages globally:
+
+    sudo aptitude install python-scipy
+
 Then just execute the following commands and hope for the best.
 
     python3 bootstrap.py
