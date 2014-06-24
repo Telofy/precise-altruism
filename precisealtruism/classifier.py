@@ -11,8 +11,19 @@ from sklearn.pipeline import Pipeline
 
 DATADIR = 'data/'
 
+
+class Densifier(object):
+    def fit(self, X, y=None):
+        pass
+    def fit_transform(self, X, y=None):
+        return self.transform(X)
+    def transform(self, X, y=None):
+        return X.toarray()
+
+
 def preprocess(item):
     return item['_source']['content']['body_cleaned']
+
 
 tuples = []
 for cat in (True, False):
@@ -25,14 +36,15 @@ classifiers = [RandomForestClassifier(), LogisticRegression(),
                SGDClassifier(), AdaBoostClassifier(),
                svm.SVC(), svm.NuSVC(), svm.LinearSVC()]
 for classifier in classifiers:
-    # Is this okay, or am I making that evil mistake Kashif keeps warning
-    # us against? (I’m still a bit fuzzy on what these functions do…)
-    feature_matrix = TfidfVectorizer().fit_transform(documents, labels).toarray()
+    pipeline = Pipeline([
+        ('vectorizer', TfidfVectorizer()),
+        ('densifier', Densifier()),
+        ('classifier', classifier)])
     # https://github.com/scikit-learn/scikit-learn/issues/1837
     precisions = cross_validation.cross_val_score(
-        classifier, feature_matrix, labels, cv=10, scoring='precision')
+        pipeline, documents, labels, cv=10, scoring='precision')
     recalls = cross_validation.cross_val_score(
-        classifier, feature_matrix, labels, cv=10, scoring='recall')
+        pipeline, documents, labels, cv=10, scoring='recall')
     precision, precision_std = precisions.mean(), precisions.std() * 2
     recall, recall_std = recalls.mean(), recalls.std() * 2
     f1_score = 2 * ((precision * recall) /
