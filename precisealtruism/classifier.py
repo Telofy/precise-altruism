@@ -13,6 +13,7 @@ from sklearn.pipeline import Pipeline
 from Stemmer import Stemmer
 
 DATADIR = 'data/'
+METRIC = 'f1'
 
 stemmer = Stemmer('english')
 word_re = re.compile(r'(?u)\b\w\w+\b', flags=re.UNICODE)
@@ -51,8 +52,8 @@ for classifier in classifiers:
         ('classifier', classifier)])
     print(pipeline.named_steps['vectorizer'])
     print(pipeline.named_steps['classifier'])
-    f1scores = cross_validation.cross_val_score(
+    scores = cross_validation.cross_val_score(
         pipeline, documents, labels, cv=10, scoring='f1')
-    f1score, f1score_std = f1scores.mean(), f1scores.std() * 2
-    print('F1 score: {:.2} ± {:.2}'.format(f1score, f1score_std))
+    score, score_std = scores.mean(), scores.std() * 2
+    print('{}: {:.2} ± {:.2}'.format(METRIC.capitalize(), score, score_std))
     print('Time: {:.2f} s\n'.format(time() - start))
