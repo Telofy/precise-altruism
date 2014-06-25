@@ -56,26 +56,3 @@ for classifier in classifiers:
     f1score, f1score_std = f1scores.mean(), f1scores.std() * 2
     print('F1 score: {:.2} ± {:.2}'.format(f1score, f1score_std))
     print('Time: {:.2f} s\n'.format(time() - start))
-
-# Old stuff, for reference, then to be deleted.
-#
-#cutoff = int(len(documents) / (10/8))
-#train_documents = documents[:cutoff]
-#train_labels = labels[:cutoff]
-#test_documents = documents[cutoff:]
-#test_labels = labels[cutoff:]
-#
-#classifier = LogisticRegression()
-#vectorizer = TfidfVectorizer()
-#pipeline = Pipeline([
-#    ('vectorizer', vectorizer),
-#    ('classifier', classifier)])
-#
-#train_feature_matrix = vectorizer.fit_transform(train_documents, train_labels)
-#classifier.fit(train_feature_matrix, train_labels)
-#
-#test_feature_matrix = vectorizer.transform(test_documents)
-#labels = classifier.predict(test_feature_matrix)
-#
-#print(test_labels)
-#print(list(labels))
