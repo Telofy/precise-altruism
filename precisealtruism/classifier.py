@@ -2,6 +2,7 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 import json
+import re
 from random import random
 from time import time
 from sklearn import cross_validation, svm
@@ -9,8 +10,12 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
 from sklearn.pipeline import Pipeline
+from Stemmer import Stemmer
 
 DATADIR = 'data/'
+
+stemmer = Stemmer('english')
+word_re = re.compile(r'(?u)\b\w\w+\b', flags=re.UNICODE)
 
 
 class Densifier(object):
@@ -25,6 +30,8 @@ class Densifier(object):
 def preprocess(item):
     return item['_source']['content']['body_cleaned']
 
+def tokenize(document):
+    return stemmer.stemWords(word_re.findall(document))
 
 tuples = []
 for cat in (True, False):
