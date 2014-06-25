@@ -42,22 +42,22 @@ for classifier in classifiers:
         ('vectorizer', TfidfVectorizer(stop_words='english')),
         ('densifier', Densifier()),
         ('classifier', classifier)])
+    print(pipeline.named_steps['vectorizer'])
+    print(pipeline.named_steps['classifier'])
     # https://github.com/scikit-learn/scikit-learn/issues/1837
     precisions = cross_validation.cross_val_score(
         pipeline, documents, labels, cv=10, scoring='precision')
+    precision, precision_std = precisions.mean(), precisions.std() * 2
+    print('Precision: {:.2} ± {:.2}'.format(precision, precision_std))
     recalls = cross_validation.cross_val_score(
         pipeline, documents, labels, cv=10, scoring='recall')
-    precision, precision_std = precisions.mean(), precisions.std() * 2
     recall, recall_std = recalls.mean(), recalls.std() * 2
+    print('Recall: {:.2} ± {:.2}'.format(recall, recall_std))
     f1_score = 2 * ((precision * recall) /
                     (precision + recall))
     f1_score_std = 2 * ((precision_std * recall_std) /
                         (precision_std + recall_std))  # Amidoinitrite?
-    print(('{}\nPrecision: {:.2} ± {:.2}\n'
-               'Recall: {:.2} ± {:.2}\n'
-               'F1 score: {:.2} ± {:.2}').format(
-        classifier, precision, precision_std,
-        recall, recall_std, f1_score, f1_score_std))
+    print('F1 score: {:.2} ± {:.2}'.format(f1_score, f1_score_std))
     print('Time: {:.2f} s\n'.format(time() - start))
 
 # Old stuff, for reference, then to be deleted.
