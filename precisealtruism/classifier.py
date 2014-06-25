@@ -41,7 +41,7 @@ for cat in (True, False):
 documents, labels = zip(*sorted(tuples, key=lambda x: random()))
 
 classifiers = [RandomForestClassifier(), LogisticRegression(),
-               SGDClassifier(), AdaBoostClassifier(),
+               SGDClassifier(shuffle=True), AdaBoostClassifier(),
                svm.SVC(), svm.NuSVC(), svm.LinearSVC()]
 for classifier in classifiers:
     start = time()
