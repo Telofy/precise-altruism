@@ -38,7 +38,9 @@ def corpus_generation():
         sources = {}
         for row in catreader:
             url, cat, src, _ = row
-            cat = bool(cat)
+            cat = {'True': True, 'False': False}.get(cat)
+            if cat is None:
+                continue
             try:
                 source = sources[src]
             except KeyError:
