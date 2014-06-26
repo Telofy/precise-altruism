@@ -25,6 +25,7 @@ setup(
         'console_scripts': [
             'manual_classification = precisealtruism.corpuscreator:manual_classification',
             'corpus_generation = precisealtruism.corpuscreator:corpus_generation',
+            'evaluation = precisealtruism.evaluation:run',
         ]
     }
 )

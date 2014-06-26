@@ -38,27 +38,33 @@ def preprocess(item):
 def tokenize(document):
     return stemmer.stemWords(word_re.findall(document))
 
-tuples = []
-for cat in (True, False):
-    with open(DATADIR + 'altruism.{}.json'.format(cat)) as json_file:
-        tuples.extend((preprocess(item), cat)
-                      for item in json.load(json_file))
-documents, labels = zip(*sorted(tuples, key=lambda x: random()))
+def load_corpus(datadir):
+    tuples = []
+    for cat in (True, False):
+        with open(datadir + 'altruism.{}.json'.format(cat)) as json_file:
+            tuples.extend((preprocess(item), cat)
+                          for item in json.load(json_file))
+    return zip(*sorted(tuples, key=lambda x: random()))
 
-classifiers = [RandomForestClassifier(), DecisionTreeClassifier(),
-               LogisticRegression(), SGDClassifier(shuffle=True),
-               GaussianNB(), SVC(), NuSVC(), LinearSVC(),
-               KNeighborsClassifier(), AdaBoostClassifier()]
-for classifier in classifiers:
-    start = time()
-    pipeline = Pipeline([
-        ('vectorizer', TfidfVectorizer(stop_words='english')),
-        ('densifier', Densifier()),
-        ('classifier', classifier)])
-    print(pipeline.named_steps['vectorizer'])
-    print(pipeline.named_steps['classifier'])
-    scores = cross_validation.cross_val_score(
-        pipeline, documents, labels, cv=10, scoring='f1')
-    score, score_std = scores.mean(), scores.std() * 2
-    print('{}: {:.2} ± {:.2}'.format(METRIC.capitalize(), score, score_std))
-    print('Time: {:.2f} s\n'.format(time() - start))
+def crossvalidate(classifiers, documents, labels):
+    for classifier in classifiers:
+        start = time()
+        pipeline = Pipeline([
+            ('vectorizer', TfidfVectorizer(stop_words='english')),
+            ('densifier', Densifier()),
+            ('classifier', classifier)])
+        print(pipeline.named_steps['vectorizer'])
+        print(pipeline.named_steps['classifier'])
+        scores = cross_validation.cross_val_score(
+            pipeline, documents, labels, cv=10, scoring='f1')
+        score, score_std = scores.mean(), scores.std() * 2
+        print('{}: {:.2} ± {:.2}'.format(METRIC.capitalize(), score, score_std))
+        print('Time: {:.2f} s\n'.format(time() - start))
+
+def run():
+    documents, labels = load_corpus(DATADIR)
+    classifiers = [RandomForestClassifier(), DecisionTreeClassifier(),
+                   LogisticRegression(), SGDClassifier(shuffle=True),
+                   GaussianNB(), SVC(), NuSVC(), LinearSVC(),
+                   KNeighborsClassifier(), AdaBoostClassifier()]
+    crossvalidate(classifiers, documents, labels)

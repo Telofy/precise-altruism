@@ -30,6 +30,10 @@ See the usage message with the `--help` option for explanations. Here an example
 
     bin/corpus_generation data/
 
+## Running the Evaluation
+
+    bin/evaluation
+
 ## Running the Daemon
 
 TODO
