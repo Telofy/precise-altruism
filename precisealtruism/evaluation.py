@@ -74,9 +74,25 @@ params = [
           'classifier__alpha': (0.0001, 0.001, 0.1)
           'classifier__eta0': (0.001, 0.01, 0.1)
          },
-         {'PARAMS FOR SVC'
-         }
-         {'classifier__n_estimators': (40,50,60)
+         {
+          'classifier__C': (1., 3., 10.)
+          'classifier__kernel': ('rbf', 'poly')
+          'classifier__gamma': (0.0, 0.001)
+         },
+         {
+          'classifier__nu': (0.3, 0.5, 0.8)
+          'classifier__C': (1., 3., 10.)
+          'classifier__kernel': ('rbf', 'poly')
+          'classifier__gamma': (0.0, 0.001)
+         },
+         {
+          LINEAR SVM
+         },
+         {
+          K-NN
+         },
+         {
+          'classifier__n_estimators': (40,50,60)
           'classifier__learning_rate': (0.5,1.)
          }
         ]
@@ -99,7 +115,7 @@ def crossvalidate(classifiers, documents, labels):
         score, score_std = scores.mean(), scores.std() * 2
         print('{}: {:.2} ± {:.2}'.format(METRIC.capitalize(), score, score_std))
         print('Time: {:.2f} s\n'.format(time() - start))
-
+        i = i+1
 def run():
     documents, labels = load_corpus(DATADIR)
     classifiers = [RandomForestClassifier(), DecisionTreeClassifier(),
