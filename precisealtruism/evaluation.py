@@ -50,7 +50,7 @@ def crossvalidate(classifiers, documents, labels):
     for classifier in classifiers:
         start = time()
         pipeline = Pipeline([
-            ('vectorizer', TfidfVectorizer(stop_words='english')),
+            ('vectorizer', TfidfVectorizer(stop_words='english', tokenizer=tokenize)),
             ('densifier', Densifier()),
             ('classifier', classifier)])
         print(pipeline.named_steps['vectorizer'])
