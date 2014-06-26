@@ -46,8 +46,47 @@ def load_corpus(datadir):
                           for item in json.load(json_file))
     return zip(*sorted(tuples, key=lambda x: random()))
 
+#Get development set for grid search:
+X_dev, X_test, Y_dev, Y_test = train_test_split(data, labels, test_size=0.5)
+'''
+params = [
+         {
+          'classifier__n_estimators': (7,10,15),
+          'classifier__min_samples_leaf': (1,3,5),
+          'classifier__max_depth': (None, 15),
+          'classifer__criterion': ("gini", "entropy")
+         },
+         {
+          'classifier__max_features': (None, "auto")
+          'classifier__min_samples_leaf': (1,3,5)
+          'classifier__max_depth': (None, 15)
+         },
+         {
+          'classifier__n_estimators': (40,50,60)
+          'classifier__learning_rate': (0.5,1.)
+         },
+         {
+          'classifier__C': (0.8, 1., 3., 10.)
+         },
+         {
+          'classifier__loss': ('log', 'squared_loss')
+          'classifier__penalty': ('l2', 'elasticnet')
+          'classifier__alpha': (0.0001, 0.001, 0.1)
+          'classifier__eta0': (0.001, 0.01, 0.1)
+         },
+         {'PARAMS FOR SVC'
+         }
+         {'classifier__n_estimators': (40,50,60)
+          'classifier__learning_rate': (0.5,1.)
+         }
+        ]
+''' 
+
 def crossvalidate(classifiers, documents, labels):
+    i = 0
     for classifier in classifiers:
+        #perform gridsearch, s.t. classifier uses optimal params
+        #classifier = GridSearchCV(classifier, params[i], cv = 5)
         start = time()
         pipeline = Pipeline([
             ('vectorizer', TfidfVectorizer(stop_words='english')),
