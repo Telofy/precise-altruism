@@ -46,8 +46,6 @@ def load_corpus(datadir):
                           for item in json.load(json_file))
     return zip(*sorted(tuples, key=lambda x: random()))
 
-#Get development set for grid search:
-X_dev, X_test, Y_dev, Y_test = train_test_split(data, labels, test_size=0.5)
 '''
 params = [
          {
