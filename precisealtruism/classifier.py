@@ -5,10 +5,14 @@ import json
 import re
 from random import random
 from time import time
-from sklearn import cross_validation, svm
+from sklearn import cross_validation
+from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, SGDClassifier
 from sklearn.ensemble import RandomForestClassifier, AdaBoostClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from Stemmer import Stemmer
 
@@ -41,9 +45,10 @@ for cat in (True, False):
                       for item in json.load(json_file))
 documents, labels = zip(*sorted(tuples, key=lambda x: random()))
 
-classifiers = [RandomForestClassifier(), LogisticRegression(),
-               SGDClassifier(shuffle=True), AdaBoostClassifier(),
-               svm.SVC(), svm.NuSVC(), svm.LinearSVC()]
+classifiers = [RandomForestClassifier(), DecisionTreeClassifier(),
+               LogisticRegression(), SGDClassifier(shuffle=True),
+               GaussianNB(), SVC(), NuSVC(), LinearSVC(),
+               KNeighborsClassifier(), AdaBoostClassifier()]
 for classifier in classifiers:
     start = time()
     pipeline = Pipeline([
