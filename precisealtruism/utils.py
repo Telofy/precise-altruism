@@ -5,6 +5,7 @@ import json
 import re
 from random import random
 from Stemmer import Stemmer
+from . import settings
 
 
 class Densifier(object):
@@ -22,7 +23,7 @@ class Densifier(object):
         return {}
 
 
-stemmer = Stemmer('english')
+stemmer = Stemmer(settings.LANGUAGE)
 word_re = re.compile(r'(?u)\b\w\w+\b', flags=re.UNICODE)
 
 def tokenize(document):

@@ -2,27 +2,46 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 import json
+import re
 import requests
 import feedparser
 from collections import defaultdict
 from copy import copy
+from HTMLParser import HTMLParser
 from itertools import cycle
 from time import sleep
 from urlparse import urlparse, urlunparse, parse_qs
 from bs4 import BeautifulSoup
 from readability import Document
-from sqlalchemy.sql import or_
+from slugify import slugify
+from sumy.parsers.html import HtmlParser
+from sumy.summarizers.lsa import LsaSummarizer
+from sumy.nlp.stemmers import Stemmer
+from sumy.nlp.tokenizers import Tokenizer
+from sumy.utils import get_stop_words
+from tumblpy import Tumblpy, TumblpyAuthError
 from .classifier import pipeline
 from .models import Entry, Session
 from .logger import logger
 from . import settings
 
 session = Session()
+unescape = HTMLParser().unescape
+tumblr = Tumblpy(settings.CONSUMER_KEY, settings.CONSUMER_SECRET,
+                 settings.OAUTH_TOKEN, settings.OAUTH_SECRET)
 
+# Summarization
+tokenizer = Tokenizer(settings.LANGUAGE)
+stemmer = Stemmer(settings.LANGUAGE)  # Probably slower than ours
+summarizer = LsaSummarizer(stemmer)
+summarizer.stop_words = get_stop_words(settings.LANGUAGE)
 
-class UnchangedException(Exception):
-    pass
-
+def summarize(entry, count):
+    clean = lambda sentence: re.sub(r' (?:[;,:.!?])', '', unicode(sentence))
+    parser = HtmlParser.from_string(entry.content, entry.url, tokenizer)
+    sentences = map(clean, summarizer(parser.document, count))
+    return '<ul>{}</ul>'.format(''.join(
+        '<li>{}</li>'.format(sentence) for sentence in sentences))
 
 def update(attribute):
     def decorator(func):
@@ -33,6 +52,10 @@ def update(attribute):
             return self_
         return wrapper
     return decorator
+
+
+class UnchangedException(Exception):
+    pass
 
 
 class Source(object):
@@ -50,7 +73,7 @@ class Source(object):
                 updated=entry.updated,
                 url=entry.link,
                 source=url,
-                title=entry.title,
+                title=unescape(entry.title),
                 content=self._extract_content(entry)))
 
     @staticmethod
@@ -116,13 +139,39 @@ class Source(object):
 
 def run():
     for url in cycle(settings.FEEDS):
+        try:
+            tumblr.get('followers', settings.BLOG)
+        except TumblpyAuthError:
+            # The API always raises 401 Not Authorized on errors.
+            # This should always work on our own Tumblrs and helps
+            # distinguish authorization errors from other errors.
+            logger.error('Error connecting to %s', self.blog, exc_info=True)
+            sleep(settings.SLEEP_TIME)
+            continue
         source = Source(url).clean().nub().complement().classify()
         entries = list(source.entries)
         session.add_all(entries)
         session.commit()  # So entries aren’t posted
                           # indefinitely if saving fails
         for entry in entries:
-            # TODO: Post to Tumblr
+            if not entry.classification:
+                continue
+            params = {
+                'slug': slugify(entry.title, to_lower=True),
+                'tags': 'charity,altruism',  # Needs more fance
+                'type': 'link',
+                'url': entry.url,
+                'source_url': entry.url,
+                'title': unescape(entry.title),
+                'description': summarize(entry, settings.SUMMARY_LENGTH)}
+            try:
+                post = tumblr.post('post', settings.BLOG, params=params)
+            except TumblpyAuthError:  # 401 Not Authorized includes deleted
+                logger.error('Error for %s:', entry.url, exc_info=True)
+            else:
+                logger.info('Posted %s as %s', entry.url, post['id'])
+            # This way I can feed these directly into Ferret for possible
+            # manual classification later on.
             print('{}: <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
                 entry.classification, entry.url, entry.updated.isoformat()))
         sleep(settings.SLEEP_TIME)

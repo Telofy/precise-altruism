@@ -6,14 +6,14 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
 from .utils import Densifier, tokenize, load_corpus
-
-DATADIR = 'data/'
+from . import settings
 
 word_re = re.compile(r'(?u)\b\w\w+\b', flags=re.UNICODE)
 
-documents, labels = load_corpus(DATADIR)
+documents, labels = load_corpus(settings.DATA_DIR)
 pipeline = Pipeline([
-    ('vectorizer', TfidfVectorizer(stop_words='english', tokenizer=tokenize)),
+    ('vectorizer', TfidfVectorizer(
+        stop_words=settings.LANGUAGE, tokenizer=tokenize)),
     ('densifier', Densifier()),
     ('classifier', SGDClassifier())])
 pipeline.fit_transform(documents, labels)

@@ -20,6 +20,8 @@ Then just execute the following commands and hope for the best.
     python3 bootstrap.py
     bin/buildout
 
+You may have to run `bin/buildout` twice if it can’t download the NLTK data on the first run when `bin/python` does not yet exist.
+
 ## Running the Manual Classification
 
 See the usage message with the `--help` option for explanations. Here an example.
@@ -36,7 +38,7 @@ See the usage message with the `--help` option for explanations. Here an example
 
 ## Running the Daemon
 
-TODO
+    bin/daemon
 
 ## Running the Tests
 

@@ -16,10 +16,9 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from Stemmer import Stemmer
 from .utils import Densifier, tokenize, load_corpus
+from . import settings
 
-DATADIR = 'data/'
 METRIC = 'f1'
-
 
 def crossvalidate(pipelines, documents, labels):
     for pipeline, parameters in pipelines:
@@ -35,9 +34,10 @@ def crossvalidate(pipelines, documents, labels):
         print('Time: {:.2f} s\n'.format(time() - start))
 
 def run():
-    documents, labels = load_corpus(DATADIR)
-    vectorizers = [(TfidfVectorizer(), {'stop_words': (None, 'english'),
-                                        'tokenizer': (tokenize,)})]
+    documents, labels = load_corpus(settings.DATA_DIR)
+    vectorizers = [(TfidfVectorizer(),
+                    {'stop_words': (None, settings.LANGUAGE),
+                     'tokenizer': (tokenize,)})]
     classifiers = [(RandomForestClassifier(),
                     {'n_estimators': (7, 10, 15),
                      'min_samples_leaf': (1, 3, 5),
