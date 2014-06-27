@@ -148,7 +148,11 @@ def run():
             logger.error('Error connecting to %s', self.blog, exc_info=True)
             sleep(settings.SLEEP_TIME)
             continue
-        source = Source(url).clean().nub().complement().classify()
+        try:
+            source = Source(url).clean().nub().complement().classify()
+        except UnchangedException:
+            sleep(settings.SLEEP_TIME)
+            continue
         entries = list(source.entries)
         session.add_all(entries)
         session.commit()  # So entries aren’t posted
