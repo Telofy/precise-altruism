@@ -8,3 +8,5 @@ LEVEL = logging.INFO
 
 logger = logging.getLogger(NAME)
 logger.setLevel(LEVEL)
+
+logger.root.setLevel(logging.WARNING)  # Readability fix

@@ -5,7 +5,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
-from .evaluation import Densifier, stemmer, load_corpus
+from .utils import Densifier, tokenize, load_corpus
 
 DATADIR = 'data/'
 
@@ -16,3 +16,4 @@ pipeline = Pipeline([
     ('vectorizer', TfidfVectorizer(stop_words='english', tokenizer=tokenize)),
     ('densifier', Densifier()),
     ('classifier', SGDClassifier())])
+pipeline.fit_transform(documents, labels)

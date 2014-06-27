@@ -2,9 +2,9 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 import re
-import dateutil
 import six
 from datetime import datetime
+from dateutil.parser import parse as parse_date
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -24,7 +24,6 @@ class Entry(Base):
         default=lambda context: context.current_parameters['url'])
     fetched = Column(DateTime, default=datetime.utcnow)
     updated = Column(DateTime, default=datetime.utcnow)
-    published = Column(DateTime, nullable=True)
     url = Column(Unicode, unique=True, index=True)
     source = Column(Unicode)
     title = Column(Unicode, default='')
@@ -35,9 +34,11 @@ class Entry(Base):
         # TODO: If I have a lot of time one day, I need to move this stuff
         # to a feedparser fork.
         if isinstance(kwargs.get('updated'), six.string_types):
-            kwargs['updated'] = dateutil.parse(kwargs['updated'])
-        if isinstance(kwargs.get('published'), six.string_types):
-            kwargs['published'] = dateutil.parse(kwargs['published'])
+            kwargs['updated'] = parse_date(kwargs['updated'])
+        super(Entry, self).__init__(**kwargs)
 
     def __repr__(self):
         return '<Entry({}: {})>'.format(self.url, self.classification)
+
+
+Base.metadata.create_all(engine)

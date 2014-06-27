@@ -23,6 +23,7 @@ setup(
         'alembic==0.6.5',  # DB migration support
         'beautifulsoup4==4.3.2',  # Mostly just for decoding
         'readability-lxml==0.3.0.3',  # Boilerplate stripping
+        'cssselect==0.9.1',  # lxml dependency
         'python-dateutil==2.2',  # Date parsing
         'sumy==0.3.0',  # Automatic summarization
     ],
