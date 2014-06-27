@@ -146,11 +146,14 @@ def run():
             # This should always work on our own Tumblrs and helps
             # distinguish authorization errors from other errors.
             logger.error('Error connecting to %s', self.blog, exc_info=True)
+            logger.info('Sleeping for %s s', settings.SLEEP_TIME)
             sleep(settings.SLEEP_TIME)
             continue
         try:
             source = Source(url).clean().nub().complement().classify()
         except UnchangedException:
+            logger.info('Feed unchanged')
+            logger.info('Sleeping for %s s', settings.SLEEP_TIME)
             sleep(settings.SLEEP_TIME)
             continue
         entries = list(source.entries)
