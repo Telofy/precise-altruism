@@ -153,9 +153,10 @@ def run():
         session.add_all(entries)
         session.commit()  # So entries aren’t posted
                           # indefinitely if saving fails
-        for entry in entries:
-            if not entry.classification:
-                continue
+        # So not to spam Tumblr when a new feed is added
+        relevant_entries = [entry for entry in entries
+                            if entry.classification][:3]
+        for entry in relevant_entries:
             params = {
                 'slug': slugify(entry.title, to_lower=True),
                 'tags': 'charity,altruism',  # Needs more fance
@@ -174,4 +175,5 @@ def run():
             # manual classification later on.
             print('{}: <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
                 entry.classification, entry.url, entry.updated.isoformat()))
+        logger.info('Sleeping for %s s', settings.SLEEP_TIME)
         sleep(settings.SLEEP_TIME)
