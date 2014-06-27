@@ -15,7 +15,7 @@ On Ubuntu, the following seems to be necessary when using Python 3:
 
 You may also have to install some packages globally:
 
-    sudo aptitude install python-scipy
+    sudo aptitude install python-numpy python-scipy libzmq-dev g++
 
 Then just execute the following commands and hope for the best.
 
