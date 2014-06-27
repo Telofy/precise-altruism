@@ -2,10 +2,10 @@
 from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 import json
-import re
 from random import random
 from time import time
 from sklearn import cross_validation
+from sklearn.grid_search import GridSearchCV
 from sklearn.svm import SVC, NuSVC, LinearSVC
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression, SGDClassifier
@@ -15,56 +15,46 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from Stemmer import Stemmer
+from .utils import Densifier, tokenize, load_corpus
 
 DATADIR = 'data/'
 METRIC = 'f1'
 
-stemmer = Stemmer('english')
-word_re = re.compile(r'(?u)\b\w\w+\b', flags=re.UNICODE)
-
-
-class Densifier(object):
-    def fit(self, X, y=None):
-        pass
-    def fit_transform(self, X, y=None):
-        return self.transform(X)
-    def transform(self, X, y=None):
-        return X.toarray()
-
-
-def preprocess(item):
-    return item['_source']['content']['body_cleaned']
-
-def tokenize(document):
-    return stemmer.stemWords(word_re.findall(document))
-
-def load_corpus(datadir):
-    tuples = []
-    for cat in (True, False):
-        with open(datadir + 'altruism.{}.json'.format(cat)) as json_file:
-            tuples.extend((preprocess(item), cat)
-                          for item in json.load(json_file))
-    return zip(*sorted(tuples, key=lambda x: random()))
-
-def crossvalidate(classifiers, documents, labels):
-    for classifier in classifiers:
+def crossvalidate(pipelines, documents, labels):
+    for pipeline, parameters in pipelines:
         start = time()
-        pipeline = Pipeline([
-            ('vectorizer', TfidfVectorizer(stop_words='english', tokenizer=tokenize)),
-            ('densifier', Densifier()),
-            ('classifier', classifier)])
-        print(pipeline.named_steps['vectorizer'])
-        print(pipeline.named_steps['classifier'])
-        scores = cross_validation.cross_val_score(
-            pipeline, documents, labels, cv=10, scoring='f1')
-        score, score_std = scores.mean(), scores.std() * 2
-        print('{}: {:.2} ± {:.2}'.format(METRIC.capitalize(), score, score_std))
+        grid_search = GridSearchCV(
+            pipeline, parameters, n_jobs=-1, verbose=1, cv=10, scoring='f1')
+        grid_search.fit(documents, labels)
+        print('Best score: {:.3f}'.format(grid_search.best_score_))
+        print('Best parameters set:')
+        best_parameters = grid_search.best_estimator_.get_params()
+        for param_name in sorted(parameters.keys()):
+            print('\t{}: {!r}'.format(param_name, best_parameters[param_name]))
         print('Time: {:.2f} s\n'.format(time() - start))
 
 def run():
     documents, labels = load_corpus(DATADIR)
-    classifiers = [RandomForestClassifier(), DecisionTreeClassifier(),
-                   LogisticRegression(), SGDClassifier(shuffle=True),
-                   GaussianNB(), SVC(), NuSVC(), LinearSVC(),
-                   KNeighborsClassifier(), AdaBoostClassifier()]
-    crossvalidate(classifiers, documents, labels)
+    vectorizers = [(TfidfVectorizer(), {'stop_words': (None, 'english'),
+                                        'tokenizer': (tokenize,)})]
+    classifiers = [(RandomForestClassifier(), {}),
+                   (DecisionTreeClassifier(), {}),
+                   (LogisticRegression(), {}),
+                   (SGDClassifier(), {'penalty': ('l2', 'elasticnet'),
+                                      'shuffle': (True,)}),
+                   (GaussianNB(), {}),
+                   (SVC(), {}),
+                   (NuSVC(), {}),
+                   (LinearSVC(), {}),
+                   (KNeighborsClassifier(), {}),
+                   (AdaBoostClassifier(), {})]
+    pipelines = [(Pipeline([('vectorizer', vectorizer),
+                            ('densifier', Densifier()),
+                            ('classifier', classifier)]),
+                  dict([('vectorizer__' + key, value)
+                        for key, value in params_v.items()] +
+                       [('classifier__' + key, value)
+                        for key, value in params_c.items()]))
+                 for vectorizer, params_v in vectorizers
+                 for classifier, params_c in classifiers]
+    crossvalidate(pipelines, documents, labels)
