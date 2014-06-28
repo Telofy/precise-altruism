@@ -134,6 +134,10 @@ class Source(object):
         for entry in self.entries:
             content_cleaned = BeautifulSoup(entry.content).get_text()
             entry.classification = pipeline.predict([content_cleaned])[0]
+            # This way I can feed these directly into Ferret for possible
+            # manual classification later on.
+            print('{}: <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
+                entry.classification, entry.url, entry.updated.isoformat()))
             yield entry
 
 
@@ -178,9 +182,5 @@ def run():
                 logger.error('Error for %s:', entry.url, exc_info=True)
             else:
                 logger.info('Posted %s as %s', entry.url, post['id'])
-            # This way I can feed these directly into Ferret for possible
-            # manual classification later on.
-            print('{}: <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
-                entry.classification, entry.url, entry.updated.isoformat()))
         logger.info('Sleeping for %s s', settings.SLEEP_TIME)
         sleep(settings.SLEEP_TIME)
