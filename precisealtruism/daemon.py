@@ -16,13 +16,13 @@ from readability import Document
 from slugify import slugify
 from sumy.parsers.html import HtmlParser
 from sumy.summarizers.lsa import LsaSummarizer
-from sumy.nlp.stemmers import Stemmer
 from sumy.nlp.tokenizers import Tokenizer
 from sumy.utils import get_stop_words
 from tumblpy import Tumblpy, TumblpyAuthError
 from .classifier import pipeline
 from .models import Entry, Session
 from .logger import logger
+from .utils import tokenize, stemmer
 from . import settings
 
 session = Session()
@@ -32,8 +32,9 @@ tumblr = Tumblpy(settings.CONSUMER_KEY, settings.CONSUMER_SECRET,
 
 # Summarization
 tokenizer = Tokenizer(settings.LANGUAGE)
-stemmer = Stemmer(settings.LANGUAGE)  # Probably slower than ours
-summarizer = LsaSummarizer(stemmer)
+summarizer = LsaSummarizer(stemmer.stemWord)
+stop_words = get_stop_words(settings.LANGUAGE)
+stop_words_stemmed = set(stemmer.stemWords(stop_words))
 summarizer.stop_words = get_stop_words(settings.LANGUAGE)
 
 def summarize(entry, count):
@@ -42,6 +43,11 @@ def summarize(entry, count):
     sentences = map(clean, summarizer(parser.document, count))
     return '<ul>{}</ul>'.format(''.join(
         '<li>{}</li>'.format(sentence) for sentence in sentences))
+
+def similarity(set0, set1):
+    set0 -= stop_words_stemmed
+    set1 -= stop_words_stemmed
+    return len(set0 & set1) / len(set0 | set1)
 
 def update(attribute):
     def decorator(func):
@@ -117,7 +123,17 @@ class Source(object):
     def nub(self):
         for entry in self.entries:
             if not session.query(Entry).filter_by(uid=entry.uid).count():
-                yield entry
+                title = set(tokenize(entry.title))
+                for old_entry in session.query(Entry) \
+                        .order_by(Entry.fetched.desc())[:10]:
+                    old_title = set(tokenize(old_entry.title))
+                    if similarity(title, old_title) > settings.MAX_SIMILARITY:
+                        logger.info('Too similar: %s and %s (%s and %s)',
+                                    entry.url, old_entry.url,
+                                    title, old_title)
+                        break
+                else:  # No break
+                    yield entry
 
     @update('entries')
     def complement(self):

@@ -14,6 +14,7 @@ RDB_SERVER = 'sqlite:///data/database.sqlite'
 SLEEP_TIME = 5 * 60
 LANGUAGE = 'english'
 SUMMARY_LENGTH = 5
+MAX_SIMILARITY = 0.9
 DATA_DIR = 'data/'
 
 CONSUMER_KEY = None
