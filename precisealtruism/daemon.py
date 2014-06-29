@@ -121,11 +121,11 @@ class Source(object):
 
     @update('entries')
     def nub(self):
+        old_entries = session.query(Entry).order_by(Entry.fetched.desc())[:10]
         for entry in self.entries:
             if not session.query(Entry).filter_by(uid=entry.uid).count():
                 title = set(tokenize(entry.title))
-                for old_entry in session.query(Entry) \
-                        .order_by(Entry.fetched.desc())[:10]:
+                for old_entry in old_entries:
                     old_title = set(tokenize(old_entry.title))
                     if similarity(title, old_title) > settings.MAX_SIMILARITY:
                         logger.info('Too similar: %s and %s (%s and %s)',
