@@ -17,7 +17,7 @@ setup(
         'python-tumblpy==1.0.2',
         'feedparser==5.1.3',
         'scikit-learn==0.15.0b1',
-        'six==1.7.2',  # Python 2 and 3 compatibility
+        'six==1.7.3',  # Python 2 and 3 compatibility
         'PyStemmer==1.3.0',  # Stemming
         'SQLAlchemy==0.9.6',  # DB abstraction layer(s)
         'alembic==0.6.5',  # DB migration support

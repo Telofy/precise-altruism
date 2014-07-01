@@ -165,7 +165,7 @@ def run():
             # The API always raises 401 Not Authorized on errors.
             # This should always work on our own Tumblrs and helps
             # distinguish authorization errors from other errors.
-            logger.error('Error connecting to %s', self.blog, exc_info=True)
+            logger.error('Error connecting to %s', settings.BLOG, exc_info=True)
             logger.info('Sleeping for %s s', settings.SLEEP_TIME)
             sleep(settings.SLEEP_TIME)
             continue
