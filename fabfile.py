@@ -38,3 +38,7 @@ def restart(process=''):
 def status():
     with cd(env.base_dir):
         run('bin/circusctl status')
+
+def rebuild():
+    with cd(env.base_dir):
+        run('bin/corpus_generation data/')
