@@ -182,7 +182,7 @@ def run():
                           # indefinitely if saving fails
         # So not to spam Tumblr when a new feed is added
         relevant_entries = [entry for entry in entries
-                            if entry.classification][:3]
+                            if entry.classification][:settings.STREAK_LIMIT]
         for entry in relevant_entries:
             params = {
                 'slug': slugify(entry.title, to_lower=True),
