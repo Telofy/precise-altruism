@@ -200,7 +200,8 @@ def run():
                 'url': entry.url,
                 'source_url': entry.url,
                 'title': unescape(entry.title),
-                'tweet': 'Via Altruism News: ' + unescape(entry.title),
+                'tweet': 'Via Altruism News: {}\n[URL]'.format(
+                    unescape(entry.title)),
                 'description': summarize(entry, settings.SUMMARY_LENGTH)}
             try:
                 post = tumblr.post('post', settings.BLOG, params=params)
