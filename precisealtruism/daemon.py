@@ -143,6 +143,7 @@ class Source(object):
                 document = Document(response.content, url=response.url)
                 entry.content = document.summary()
                 entry.title = document.short_title()
+                entry.url = response.url
             yield entry
 
     @update('entries')
