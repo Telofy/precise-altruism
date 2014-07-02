@@ -84,7 +84,7 @@ class Source(object):
 
     @staticmethod
     def _extract_content(entry):
-        if entry['content']:
+        if entry.get('content'):
             return entry['content'][0]['value']
         return entry['summary']
 
