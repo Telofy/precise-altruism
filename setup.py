@@ -26,6 +26,7 @@ setup(
         'cssselect==0.9.1',  # lxml dependency
         'python-dateutil==2.2',  # Date parsing
         'sumy==0.3.0',  # Automatic summarization
+        'nltk==2.0.4',
         'setuptools',  # For breadability
         'awesome-slugify==1.5',
     ],

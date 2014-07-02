@@ -22,7 +22,7 @@ from tumblpy import Tumblpy, TumblpyAuthError
 from .classifier import pipeline
 from .models import Entry, Session
 from .logger import logger
-from .utils import tokenize, stemmer
+from .utils import stem, lemmatized_tokens, stemmed_tokens
 from . import settings
 
 session = Session()
@@ -32,10 +32,10 @@ tumblr = Tumblpy(settings.CONSUMER_KEY, settings.CONSUMER_SECRET,
 
 # Summarization
 tokenizer = Tokenizer(settings.LANGUAGE)
-summarizer = LsaSummarizer(stemmer.stemWord)
-stop_words = get_stop_words(settings.LANGUAGE)
-stop_words_stemmed = set(stemmer.stemWords(stop_words))
-summarizer.stop_words = get_stop_words(settings.LANGUAGE)
+summarizer = LsaSummarizer(stem)
+stop_words = set(get_stop_words(settings.LANGUAGE))
+stop_words_stemmed = set(map(stem, stop_words))
+summarizer.stop_words = stop_words
 
 def summarize(entry, count):
     clean = lambda sentence: re.sub(r' (?:[;,:.!?])', '', unicode(sentence))
@@ -44,9 +44,15 @@ def summarize(entry, count):
     return '<ul>{}</ul>'.format(''.join(
         '<li>{}</li>'.format(sentence) for sentence in sentences))
 
-def similarity(set0, set1):
-    set0 -= stop_words_stemmed
-    set1 -= stop_words_stemmed
+def content_lemmas(string):
+    return set(lemmatized_tokens(string)) - stop_words
+
+def content_stems(string):
+    return set(stemmed_tokens(string)) - stop_words_stemmed
+
+def similarity(title0, title1):
+    set0 = content_stems(title0)
+    set1 = content_stems(title1)
     return len(set0 & set1) / len(set0 | set1)
 
 def update(attribute):
@@ -124,10 +130,9 @@ class Source(object):
         old_entries = session.query(Entry).order_by(Entry.fetched.desc())[:10]
         for entry in self.entries:
             if not session.query(Entry).filter_by(uid=entry.uid).count():
-                title = set(tokenize(entry.title))
                 for old_entry in old_entries:
-                    old_title = set(tokenize(old_entry.title))
-                    if similarity(title, old_title) > settings.MAX_SIMILARITY:
+                    if similarity(entry.title, old_entry.title) \
+                            > settings.MAX_SIMILARITY:
                         logger.info('Too similar: %s and %s (%s and %s)',
                                     entry.url, old_entry.url,
                                     title, old_title)
@@ -149,7 +154,8 @@ class Source(object):
     @update('entries')
     def classify(self):
         for entry in self.entries:
-            content_cleaned = BeautifulSoup(entry.content).get_text()
+            content_cleaned = '{}\n{}'.format(
+                entry.title, BeautifulSoup(entry.content).get_text())
             entry.classification = pipeline.predict([content_cleaned])[0]
             # This way I can feed these directly into Ferret for possible
             # manual classification later on.
@@ -187,11 +193,14 @@ def run():
         for entry in relevant_entries:
             params = {
                 'slug': slugify(entry.title, to_lower=True),
-                'tags': 'charity,altruism',  # Needs more fance
+                'tags': ','.join(
+                    set(['altruism', 'charity', 'philanthropy'])
+                    | content_lemmas(entry.title)),
                 'type': 'link',
                 'url': entry.url,
                 'source_url': entry.url,
                 'title': unescape(entry.title),
+                'tweet': 'Via Altruism News: ' + unescape(entry.title),
                 'description': summarize(entry, settings.SUMMARY_LENGTH)}
             try:
                 post = tumblr.post('post', settings.BLOG, params=params)

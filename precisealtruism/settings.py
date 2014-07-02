@@ -13,7 +13,7 @@ FEEDS = [
     'https://news.google.com/news/feeds?hl=en&q=charity|altruism|philanthropy&ie=UTF-8&num=10&output=atom',
 ]
 
-BLOG = 'altrunews.tumblr.com'
+BLOG = 'altrunews.claviger.net'
 RDB_SERVER = 'sqlite:///data/database.sqlite'
 SLEEP_TIME = 5 * 60
 LANGUAGE = 'english'

@@ -5,6 +5,7 @@ import json
 import re
 from random import random
 from Stemmer import Stemmer
+from nltk.stem.wordnet import WordNetLemmatizer
 from . import settings
 
 
@@ -23,14 +24,25 @@ class Densifier(object):
         return {}
 
 
-stemmer = Stemmer(settings.LANGUAGE)
 word_re = re.compile(r'(?u)\b\w\w+\b', flags=re.UNICODE)
+stemmer = Stemmer(settings.LANGUAGE)
+lemmatizer = WordNetLemmatizer()
 
-def tokenize(document):
-    return stemmer.stemWords(word_re.findall(document))
+tokenize = word_re.findall
+stem = stemmer.stemWord
+stem_all = stemmer.stemWords
+lemmatize = lemmatizer.lemmatize
+
+def stemmed_tokens(document):
+    return stem_all(tokenize(document.lower()))
+
+def lemmatized_tokens(document):
+    return map(lemmatize, tokenize(document.lower()))
 
 def preprocess(item):
-    return item['_source']['content']['body_cleaned']
+    return '{}\n{}'.format(
+        item['_source']['content']['title'],
+        item['_source']['content']['body_cleaned'])
 
 def load_corpus(datadir):
     tuples = []

@@ -15,7 +15,7 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
 from Stemmer import Stemmer
-from .utils import Densifier, tokenize, load_corpus
+from .utils import Densifier, stemmed_tokens, load_corpus
 from . import settings
 
 METRIC = 'f1'
@@ -37,7 +37,7 @@ def run():
     documents, labels = load_corpus(settings.DATA_DIR)
     vectorizers = [(TfidfVectorizer(),
                     {'stop_words': (None, settings.LANGUAGE),
-                     'tokenizer': (tokenize,)})]
+                     'tokenizer': (stemmed_tokens,)})]
     classifiers = [(RandomForestClassifier(),
                     {'n_estimators': (7, 10, 15),
                      'min_samples_leaf': (1, 3, 5),
