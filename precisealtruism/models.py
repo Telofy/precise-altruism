@@ -24,7 +24,7 @@ class Entry(Base):
         default=lambda context: context.current_parameters['url'])
     fetched = Column(DateTime, default=datetime.utcnow)
     updated = Column(DateTime, default=datetime.utcnow)
-    url = Column(Unicode, unique=True, index=True)
+    url = Column(Unicode, index=True)
     source = Column(Unicode)
     title = Column(Unicode, default='')
     content = Column(Unicode, default='')
