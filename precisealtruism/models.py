@@ -5,6 +5,7 @@ import re
 import six
 from datetime import datetime
 from dateutil.parser import parse as parse_date
+from dateutil.tz import tzutc
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, relationship
 from sqlalchemy.ext.declarative import declarative_base
@@ -35,6 +36,9 @@ class Entry(Base):
         # to a feedparser fork.
         if isinstance(kwargs.get('updated'), six.string_types):
             kwargs['updated'] = parse_date(kwargs['updated'])
+            if kwargs['updated'].tzinfo is not None:
+                kwargs['updated'] = kwargs['updated'].astimezone(tzutc()) \
+                    .replace(tzinfo=None)
         super(Entry, self).__init__(**kwargs)
 
     def __repr__(self):

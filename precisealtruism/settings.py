@@ -15,12 +15,13 @@ FEEDS = [
 
 BLOG = 'altrunews.claviger.net'
 RDB_SERVER = 'sqlite:///data/database.sqlite'
-SLEEP_TIME = 5 * 60
+SLEEP_TIME = 5 * 60  # Seconds
 LANGUAGE = 'english'
 SUMMARY_LENGTH = 5
 MAX_SIMILARITY = 0.9
 DATA_DIR = 'data/'
 STREAK_LIMIT = 1
+MAX_AGE = 7  # Days
 
 CONSUMER_KEY = None
 CONSUMER_SECRET = None

@@ -7,6 +7,7 @@ import requests
 import feedparser
 from collections import defaultdict
 from copy import copy
+from datetime import datetime, timedelta
 from HTMLParser import HTMLParser
 from itertools import cycle
 from time import sleep
@@ -126,6 +127,12 @@ class Source(object):
             yield entry
 
     @update('entries')
+    def since(self, date):
+        for entry in self.entries:
+            if entry.updated > date:
+                yield entry
+
+    @update('entries')
     def nub(self):
         old_entries = session.query(Entry).order_by(Entry.fetched.desc())[:10]
         for entry in self.entries:
@@ -177,7 +184,9 @@ def run():
             sleep(settings.SLEEP_TIME)
             continue
         try:
-            source = Source(url).clean().nub().complement().classify()
+            min_date = datetime.utcnow() - timedelta(days=settings.MAX_AGE)
+            source = Source(url).clean().since(min_date).nub() \
+                .complement().classify()
         except UnchangedException:
             logger.info('Feed unchanged')
             logger.info('Sleeping for %s s', settings.SLEEP_TIME)
