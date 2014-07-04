@@ -150,12 +150,23 @@ class Source(object):
     @update('entries')
     def complement(self):
         for entry in self.entries:
-            if len(entry.content) < 1000:
-                response = requests.get(entry.url, timeout=10)
-                document = Document(response.content, url=response.url)
-                entry.content = document.summary()
-                entry.title = document.short_title()
-                entry.url = response.url
+            response = requests.get(entry.url, timeout=10)
+            document = Document(response.content, url=response.url)
+            # Image extraction first
+            document._html()  # Trigger parsing
+            images = document.html.xpath(
+                '//meta[@property="og:image"]/@content')
+            images += document.html.xpath(
+                '//meta[@name="twitter:image:src"]/@content')
+            # Content extraction second
+            entry.url = response.url
+            entry.title = document.short_title()
+            entry.content = document.summary()
+            if images:
+                image = ('<img src="{}" alt="{}"'
+                         ' style="width: 150px; float: right;" />').format(
+                            images[0], entry.title)
+                entry.content = '{}\n{}'.format(image, entry.content)
             yield entry
 
     @update('entries')
