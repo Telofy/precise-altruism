@@ -103,8 +103,8 @@ def manual_classification():
             # Ask for input and check if it is valid (i.e. if input \in {'y', 'n', 's'})
             valid = False
             while not valid:
-                cat_ = input('Is this article interesting for someone '
-                             'interested in charity? (y[es]/n[o]/s[kip]) ')
+                cat_ = input('Is this article interesting for our'
+                             ' envisioned reader? (y[es]/n[o]/s[kip]) ')
                 if cat_ == 'y':
                     catwriter.writerow([link_url, True, filename, args.modulo])
                     valid = True
@@ -115,6 +115,3 @@ def manual_classification():
                     catwriter.writerow([link_url, None, filename, args.modulo])
                     valid = True
                 else: print('Invalid choice, try again.\n')
-
-if __name__ == '__main__':
-    run()

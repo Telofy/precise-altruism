@@ -4,6 +4,14 @@ This program contains (will contain) a classification engine for news articles t
 
 This engine is (will be) used to run a Tumblr or Twitter account that publishes links to these articles based on a broader news feed from Google News or [Kuerzr](http://www.kuerzr.com/).
 
+## Target Audience
+
+Our envisioned reader is interested in topics that maximize the following in roughly that order:
+
+    1. Altruism
+    2. Effectiveness
+    3. Timeless relevance
+
 ## Setup
 
 You may have to install some packages globally:
