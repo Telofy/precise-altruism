@@ -28,6 +28,7 @@ class Entry(Base):
     url = Column(Unicode, index=True)
     source = Column(Unicode)
     title = Column(Unicode, default='')
+    image = Column(Unicode, default='')
     content = Column(Unicode, default='')
     classification = Column(Boolean, nullable=True)
 

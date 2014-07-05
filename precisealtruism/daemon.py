@@ -160,13 +160,9 @@ class Source(object):
                 '//meta[@name="twitter:image:src"]/@content')
             # Content extraction second
             entry.url = response.url
+            entry.image = (images or [''])[0]
             entry.title = document.short_title()
             entry.content = document.summary()
-            if images:
-                image = ('<img src="{}" alt="{}"'
-                         ' style="width: 150px; float: right;" />').format(
-                            images[0], entry.title)
-                entry.content = '{}\n{}'.format(image, entry.content)
             yield entry
 
     @update('entries')
@@ -211,6 +207,12 @@ def run():
         relevant_entries = [entry for entry in entries
                             if entry.classification][:settings.STREAK_LIMIT]
         for entry in relevant_entries:
+            description = summarize(entry, settings.SUMMARY_LENGTH)
+            if entry.image:
+                image = ('<img src="{}" alt="{}"'
+                         ' style="width: 150px; float: right;" />').format(
+                            entry.image, entry.title)
+                description = '{}\n{}'.format(image, description)
             params = {
                 'slug': slugify(entry.title, to_lower=True),
                 'tags': ','.join(
@@ -222,7 +224,7 @@ def run():
                 'title': unescape(entry.title),
                 'tweet': 'Via Altruism News: {}\n[URL]'.format(
                     unescape(entry.title)),
-                'description': summarize(entry, settings.SUMMARY_LENGTH)}
+                'description': description}
             try:
                 post = tumblr.post('post', settings.BLOG, params=params)
             except TumblpyAuthError:  # 401 Not Authorized includes deleted
