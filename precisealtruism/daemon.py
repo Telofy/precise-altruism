@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 import json
 import re
+import sys
 import requests
 import feedparser
 from collections import defaultdict
@@ -175,6 +176,7 @@ class Source(object):
             # manual classification later on.
             print('{}: <url><loc>{}</loc><lastmod>{}</lastmod></url>'.format(
                 entry.classification, entry.url, entry.updated.isoformat()))
+            sys.stdout.flush()
             yield entry
 
 
