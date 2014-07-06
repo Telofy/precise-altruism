@@ -145,7 +145,7 @@ class Source(object):
                             > settings.MAX_SIMILARITY:
                         logger.info('Too similar: %s and %s (%s and %s)',
                                     entry.url, old_entry.url,
-                                    title, old_title)
+                                    entry.title, old_entry.title)
                         break
                 else:  # No break
                     yield entry
