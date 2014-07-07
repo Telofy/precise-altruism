@@ -137,7 +137,7 @@ class Source(object):
     def nub(self):
         old_entries = session.query(Entry) \
             .filter(Entry.classification==True) \
-            .order_by(Entry.fetched.desc())[:20]
+            .order_by(Entry.fetched.desc())[:50]
         for entry in self.entries:
             if not session.query(Entry).filter_by(uid=entry.uid).count():
                 for old_entry in old_entries:
@@ -196,7 +196,7 @@ def run():
             continue
         try:
             min_date = datetime.utcnow() - timedelta(days=settings.MAX_AGE)
-            # Nubbing twice because title and URL might change
+            # Nubbing twice because title might change
             source = Source(url).clean().since(min_date).nub() \
                 .complement().nub().classify()
         except UnchangedException:
