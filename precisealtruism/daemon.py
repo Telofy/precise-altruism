@@ -196,8 +196,9 @@ def run():
             continue
         try:
             min_date = datetime.utcnow() - timedelta(days=settings.MAX_AGE)
+            # Nubbing twice because title and URL might change
             source = Source(url).clean().since(min_date).nub() \
-                .complement().classify()
+                .complement().nub().classify()
         except UnchangedException:
             logger.info('Feed unchanged')
             logger.info('Sleeping for %s s', settings.SLEEP_TIME)
