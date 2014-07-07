@@ -139,7 +139,10 @@ class Source(object):
             .filter(Entry.classification==True) \
             .order_by(Entry.fetched.desc())[:50]
         for entry in self.entries:
-            if not session.query(Entry).filter_by(uid=entry.uid).count():
+            if not session.query(Entry).filter(
+                    (Entry.uid == entry.uid) |
+                    (Entry.url == entry.url)).count():
+                logger.info('New entry: %s (%s)', entry.url, entry.title)
                 for old_entry in old_entries:
                     if similarity(entry.title, old_entry.title) \
                             > settings.MAX_SIMILARITY:
