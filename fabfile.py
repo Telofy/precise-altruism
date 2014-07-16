@@ -31,6 +31,10 @@ def stop(process=''):
     with cd(env.base_dir):
         run('bin/circusctl stop {}'.format(process))
 
+def reload(process=''):
+    with cd(env.base_dir):
+        run('bin/circusctl reload {}'.format(process))
+
 def restart(process=''):
     with cd(env.base_dir):
         run('bin/circusctl restart {}'.format(process))
