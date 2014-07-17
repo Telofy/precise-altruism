@@ -57,6 +57,11 @@ def similarity(title0, title1):
     set1 = content_stems(title1)
     return len(set0 & set1) / len(set0 | set1)
 
+def shorten(text, length):
+    if len(text) <= length:
+        return text
+    return ' '.join(text[:length-2].split(' ')[:-1]) + ' …'
+
 def update(attribute):
     def decorator(func):
         def wrapper(self, *args, **kwargs):
@@ -230,8 +235,7 @@ def run():
                 'url': entry.url,
                 'source_url': entry.url,
                 'title': unescape(entry.title),
-                'tweet': '{}\n[URL]'.format(
-                    unescape(entry.title)),
+                'tweet': shorten(unescape(entry.title), 119) + '\n[URL]',
                 'description': description}
             try:
                 post = tumblr.post('post', settings.BLOG, params=params)
