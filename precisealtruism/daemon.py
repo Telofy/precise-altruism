@@ -161,7 +161,11 @@ class Source(object):
     @update('entries')
     def complement(self):
         for entry in self.entries:
-            response = requests.get(entry.url, timeout=10)
+            try:
+                response = requests.get(entry.url, timeout=10)
+            except requests.RequestException as excp:
+                logger.warn('Request exception: %s', excp.message)
+                continue
             document = Document(response.content, url=response.url)
             # Image extraction first
             document._html()  # Trigger parsing
