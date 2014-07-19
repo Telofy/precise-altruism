@@ -55,7 +55,7 @@ def content_stems(string):
 def similarity(title0, title1):
     set0 = content_stems(title0)
     set1 = content_stems(title1)
-    return len(set0 & set1) / len(set0 | set1)
+    return len(set0 & set1) / len(set0 | set1) if set0 != set1 else 1.0
 
 def shorten(text, length):
     if len(text) <= length:
@@ -164,7 +164,8 @@ class Source(object):
             try:
                 response = requests.get(entry.url, timeout=10)
             except requests.RequestException as excp:
-                logger.warn('Request exception: %s', excp.message)
+                logger.warn('Exception requesting article %s: %s',
+                            entry.url, excp.message)
                 continue
             document = Document(response.content, url=response.url)
             # Image extraction first
@@ -215,6 +216,10 @@ def run():
             logger.info('Feed unchanged')
             logger.info('Sleeping for %s s', settings.SLEEP_TIME)
             sleep(settings.SLEEP_TIME)
+            continue
+        except requests.RequestException as excp:
+            logger.warn('Exception requesting feed %s: %s',
+                        url, excp.message)
             continue
         entries = list(source.entries)
         session.add_all(entries)
