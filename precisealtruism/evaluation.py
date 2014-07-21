@@ -47,7 +47,7 @@ def run():
                               'perceptron'),  # Removed loss², hinge²
                      'penalty': ('l2', 'elasticnet'),  # Removed l1
                      'alpha': (0.00001, 0.0001, 0.001),
-                     'n_iter': (1, 5, 20, 100),
+                     'n_iter': (5, 50, 100, 250),
                      'shuffle': (True,)}),
                    #(RandomForestClassifier(),
                    # {'n_estimators': (7, 10, 15),

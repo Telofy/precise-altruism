@@ -19,8 +19,9 @@ pipeline = Pipeline([
     ('densifier', Densifier()),
     ('scaler', StandardScaler()),
     ('classifier', SGDClassifier(
-        loss='modified_huber',
+        loss='perceptron',
         penalty='elasticnet',
+        n_iter=20,
         alpha=0.001,
         shuffle=True))])
 pipeline.fit_transform(documents, labels)
