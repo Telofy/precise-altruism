@@ -14,6 +14,7 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.naive_bayes import GaussianNB
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler, MinMaxScaler
 from Stemmer import Stemmer
 from .utils import Densifier, stemmed_tokens, load_corpus
 from . import settings
@@ -22,29 +23,32 @@ METRIC = 'f1'
 
 def crossvalidate(pipelines, documents, labels):
     for pipeline, parameters in pipelines:
-        start = time()
         grid_search = GridSearchCV(
-            pipeline, parameters, n_jobs=-1, verbose=1, cv=10, scoring='f1')
+            pipeline, parameters, n_jobs=-1, verbose=1, cv=5, scoring='f1')
         grid_search.fit(documents, labels)
+        for item in sorted(grid_search.grid_scores_,
+                           key=lambda item: -item.mean_validation_score)[:10]:
+            print(item)
         print('Best score: {:.3f}'.format(grid_search.best_score_))
         print('Best parameters set:')
         best_parameters = grid_search.best_estimator_.get_params()
         for param_name in sorted(parameters.keys()):
             print('\t{}: {!r}'.format(param_name, best_parameters[param_name]))
-        print('Time: {:.2f} s\n'.format(time() - start))
+
 
 def run():
     documents, labels = load_corpus(settings.DATA_DIR)
     vectorizers = [(TfidfVectorizer(),
-                    {'stop_words': (None, settings.LANGUAGE),
+                    {'stop_words': (settings.LANGUAGE,),
+                     'ngram_range': ((1, 2),),  # Removed (1, 1)
                      'tokenizer': (stemmed_tokens,)})]
     classifiers = [(SGDClassifier(),
-                    {'loss': ('log', 'squared_loss', 'hinge', 'squared_hinge'),
-                     'penalty': ('l2', 'elasticnet'),
-                     'alpha': (0.001, 0.01, 0.1),
-                     'eta0': (0.001, 0.01, 0.1),
-                     'power_t': (0.3, 0.5, 0.7),
-                     'shuffle': (True, False)}),
+                    {'loss': ('log', 'hinge', 'modified_huber',
+                              'perceptron'),  # Removed loss², hinge²
+                     'penalty': ('l2', 'elasticnet'),  # Removed l1
+                     'alpha': (0.00001, 0.0001, 0.001),
+                     'n_iter': (1, 5, 20, 100),
+                     'shuffle': (True,)}),
                    #(RandomForestClassifier(),
                    # {'n_estimators': (7, 10, 15),
                    #  'min_samples_leaf': (1, 3, 5),
@@ -75,6 +79,7 @@ def run():
     ]
     pipelines = [(Pipeline([('vectorizer', vectorizer),
                             ('densifier', Densifier()),
+                            ('scaler', StandardScaler()),
                             ('classifier', classifier)]),
                   dict([('vectorizer__' + key, value)
                         for key, value in params_v.items()] +
