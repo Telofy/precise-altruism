@@ -13,8 +13,14 @@ word_re = re.compile(r'(?u)\b\w\w+\b', flags=re.UNICODE)
 documents, labels = load_corpus(settings.DATA_DIR)
 pipeline = Pipeline([
     ('vectorizer', TfidfVectorizer(
-        stop_words=settings.LANGUAGE, tokenizer=stemmed_tokens,
+        stop_words=settings.LANGUAGE,
+        tokenizer=stemmed_tokens,
         ngram_range=(1, 2))),
     ('densifier', Densifier()),
-    ('classifier', SGDClassifier())])
+    ('scaler', StandardScaler()),
+    ('classifier', SGDClassifier(
+        loss='modified_huber',
+        penalty='elasticnet',
+        alpha=0.001,
+        shuffle=True))])
 pipeline.fit_transform(documents, labels)
