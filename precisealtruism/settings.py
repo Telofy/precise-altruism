@@ -17,6 +17,7 @@ FEEDS = [
 
 BLOG = 'altrunews.claviger.net'
 RDB_SERVER = 'sqlite:///data/database.sqlite'
+MODEL_PICKLE = 'data/pipeline.pkl'
 SLEEP_TIME = 5 * 60  # Seconds
 LANGUAGE = 'english'
 SUMMARY_LENGTH = 3
