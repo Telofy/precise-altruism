@@ -5,6 +5,7 @@ import re
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import SGDClassifier
 from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
 from .utils import Densifier, stemmed_tokens, load_corpus
 from . import settings
 
