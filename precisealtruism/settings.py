@@ -3,6 +3,7 @@ from __future__ import (absolute_import, division,
                         print_function, unicode_literals)
 
 FEEDS = [
+    'http://yoursiblings.org/blog/feeds/',
     'http://news.againstmalaria.com/syndication.axd?format=atom',
     'http://feeds.feedburner.com/TheGivewellBlog',
     'http://www.givedirectly.org/blog_feed.php',
