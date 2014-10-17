@@ -14,8 +14,8 @@ setup(
         test=[],
     ),
     install_requires=[
-        'python-tumblpy==1.0.2',
-        'feedparser==5.1.3',
+        'python-tumblpy>=1.0.3',
+        'feedparser>=5.1.3',
         'scikit-learn==0.15.0b1',
         'six==1.7.3',  # Python 2 and 3 compatibility
         'PyStemmer==1.3.0',  # Stemming
