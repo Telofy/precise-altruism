@@ -88,7 +88,7 @@ class Source(object):
         self.entries = []
         for entry in self.feed.entries:
             self.entries.append(Entry(
-                uid=entry.id,
+                uid=entry.get('id', entry.link),
                 updated=entry.updated,
                 url=entry.link,
                 source=url,
