@@ -31,6 +31,9 @@ FEEDS = [
     'http://veganoutreach.org/feed/atom/',
     'http://www.fhi.ox.ac.uk/news-archive/feed/atom/',
     'http://www.animalequality.net/rss.xml',
+    'http://www.givinggladly.com/feeds/posts/default',
+    'http://www.benkuhn.net/rss/effective-altruism',
+    'http://reducing-suffering.org/feed/atom/',
     'http://www.kuerzr.com/feed/840ed599-007f-53ea-86ef-524ef7ff4d6f/atom.xml',
     'https://news.google.com/news/feeds?hl=en&q=charity|altruism|philanthropy&ie=UTF-8&num=10&output=atom',
 ]

@@ -21,7 +21,7 @@ def develop(args):
 
 def circusd():
     with cd(env.base_dir):
-        run('bin/circusd')
+        run('bin/circusd --daemon circus.conf')
 
 def start(process=''):
     with cd(env.base_dir):
