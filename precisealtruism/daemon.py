@@ -11,6 +11,7 @@ from copy import copy
 from datetime import datetime, timedelta
 from HTMLParser import HTMLParser
 from itertools import cycle
+from random import random
 from time import sleep
 from urlparse import urlparse, urlunparse, parse_qs
 from bs4 import BeautifulSoup
@@ -196,7 +197,7 @@ class Source(object):
 
 
 def run():
-    for url in cycle(settings.FEEDS):
+    for url in cycle(sorted(settings.FEEDS, key=lambda _: random())):
         try:
             tumblr.get('followers', settings.BLOG)
         except TumblpyAuthError:
