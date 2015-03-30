@@ -89,7 +89,7 @@ class Source(object):
         for entry in self.feed.entries:
             self.entries.append(Entry(
                 uid=entry.get('id', entry.link),
-                updated=entry.updated,
+                updated=entry.get('updated', datetime.utcnow()),
                 url=entry.link,
                 source=url,
                 title=unescape(entry.title),
